@@ -8,7 +8,7 @@
 支持[企业微信](https://github.com/MustangYM/WeChatICU-ForMac),由此进.
 
 ## 声明
-- 适用于Mac版的WeChat拓展功能. 1.7.5代码来自于WeChatPlugin, 对[tk](https://github.com/TKkk-iOSer)在此表示感谢!
+- 适用于Mac版的WeChat拓展功能. 1.7.5代码来自于WeChatPlugin, 对[TK](https://github.com/TKkk-iOSer)在此表示感谢!
 
 ## 最新支持版本
 -  mac版微信2.4.0
@@ -171,6 +171,18 @@ sudo rm -r -f WeChatExtension-ForMac && git clone --depth=1 https://github.com/M
    <td align="center">
   <a href="https://github.com/TheColdVoid"><img src="https://avatars2.githubusercontent.com/u/10008227?s=400&v=4" width="100px;" alt="TheColdVoid"/>
   <br></br><sub><b>TheColdVoid</b></sub>   
+ 
+   <td align="center">
+  <a href="https://github.com/Yaidea"><img src="https://avatars2.githubusercontent.com/u/61902523?s=400&v=4" width="100px;" alt="Yaidea"/>
+  <br></br><sub><b>Yaidea</b></sub> 
+ 
+   <td align="center">
+  <a href="https://github.com/zybook"><img src="https://avatars2.githubusercontent.com/u/5904979?s=400&v=4" width="100px;" alt="zybook"/>
+  <br></br><sub><b>zybook</b></sub>
+ 
+   <td align="center">
+  <a href="https://github.com/hydrahailnuaa"><img src="https://avatars2.githubusercontent.com/u/8326343?s=400&v=4" width="100px;" alt="hydrahailnuaa"/>
+  <br></br><sub><b>hydrahailnuaa</b></sub>
  
 </td></tr></table>
 
