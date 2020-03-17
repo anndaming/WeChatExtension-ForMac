@@ -3,7 +3,7 @@
 <img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/face.png" width="1000px"/>
 </p>
 
-![platform](https://img.shields.io/badge/platform-macos-lightgrey.svg)  [![release](https://img.shields.io/badge/release-v2.4.0-brightgreen.svg)](https://github.com/MustangYM/WeChatExtension-ForMac/releases)  ![support](https://img.shields.io/badge/support-wechat%202.4.0-blue.svg)
+![platform](https://img.shields.io/badge/platform-macos-lightgrey.svg)  [![release](https://img.shields.io/badge/release-v2.4.2-brightgreen.svg)](https://github.com/MustangYM/WeChatExtension-ForMac/releases)  ![support](https://img.shields.io/badge/support-wechat%202.4.0-blue.svg)
 
 支持[企业微信](https://github.com/MustangYM/WeChatICU-ForMac),由此进.
 
@@ -13,12 +13,15 @@
 ## 最新支持版本
 -  mac版微信2.4.0
 
-## 同时支持自定义回复和AI自动撩妹
-- 腾讯AI人工智能(ZZ)自动回复, 能理解上下文语义. 经过大量临床试验和大家反馈, 腾讯这个AI接口回复十分智障, 慎用.
-- 自定义自动回复
-
+## 消息防撤回
 <p align="center">
-<img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/Snipaste_2019-12-23_11-41-20.png" width="800px"/>
+<img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/revoke.gif" width="800px"/>
+</p>
+
+## 黑夜模式
+- 众多软件都适配了黑夜模式, 等了这么久Mac微信官方还是没做适配(希望赶紧出, 来自底层的呐喊). 所以做了这个玩票功能, 部分页面有显示BUG, 不影响正常使用, 如果你是强迫症加完美主义, 可能不太适合.
+<p align="center">
+<img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/darkMode.png" width="800px"/>
 </p>
 
 ## 手机端也能收到被撤回的消息
@@ -37,9 +40,12 @@
 <img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/launch.gif" width="800px"/>
 </p>
 
-## 消息防撤回
+## 同时支持自定义回复和AI自动撩妹
+- 腾讯AI人工智能(ZZ)自动回复, 能理解上下文语义. 经过大量临床试验和大家反馈, 腾讯这个AI接口回复十分智障, 慎用.
+- 自定义自动回复
+
 <p align="center">
-<img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/revoke.gif" width="800px"/>
+<img src="https://github.com/MustangYM/WeChatExtensionSources/blob/master/Pictures/Snipaste_2019-12-23_11-41-20.png" width="800px"/>
 </p>
 
 ## 显示小程序详情
@@ -188,6 +194,7 @@ sudo rm -r -f WeChatExtension-ForMac && git clone --depth=1 https://github.com/M
 
 ## 更新日志
 ```
+2020-03-17 黑夜模式
 2020-02-25 兼容微信2.4.0, 修复小程序不能打开BUG, 并兼容微信多开
 2019-12-27 退群提醒
 2019-12-23 发布2.3.0版本, 新增显示小程序信息, 转账金额
