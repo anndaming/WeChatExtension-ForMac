@@ -179,10 +179,18 @@ FOUNDATION_EXPORT const unsigned char WeChatPluginVersionString[];
 
 @end
 
+@interface MMHandoffButton : NSButton
+
+@end
+
 @interface MMMainViewController : NSViewController
 @property(retain, nonatomic) MMChatsViewController *chatsViewController;
+@property(nonatomic) __weak MMHandoffButton *handoffButton; // @synthesize handoffButton=_handoffButton;
 - (void)viewDidLoad;
 - (void)dealloc;
+- (void)onReceiveNewHandoff:(id)arg1;
+- (void)onUpdateHandoffExpt:(BOOL)arg1;
+- (void)showHandoffView:(id)arg1;
 @end
 
 @interface WeChat : NSObject
@@ -196,6 +204,7 @@ FOUNDATION_EXPORT const unsigned char WeChatPluginVersionString[];
 - (void)onAuthOK:(BOOL)arg1;
 - (void)checkForUpdatesInBackground;
 - (void)setupCheckUpdateIfNeeded;
+- (BOOL)isTaskProgress;
 @end
 
 @interface ContactStorage : NSObject
@@ -823,4 +832,8 @@ forHTTPHeaderField:(NSString *)field;
 
 @interface MMGlobalChatManagerWindowController : NSWindowController
 
+@end
+
+@interface WeChatApplication : NSApplication
+- (BOOL)isMiniProgramProcess;
 @end

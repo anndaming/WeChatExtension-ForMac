@@ -13,7 +13,8 @@
 @end
 
 @implementation YMThemeMgr
-+ (instancetype)shareInstance {
++ (instancetype)shareInstance
+{
     static id share = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -22,7 +23,8 @@
     return share;
 }
 
-- (void)changeTheme:(NSView *)view {
+- (void)changeTheme:(NSView *)view
+{
     [self changeTheme:view color:kMainBackgroundColor];
 }
 
@@ -84,5 +86,15 @@
         kRGBColor(82, 139, 139, 1.0),
         kRGBColor(248, 193, 155, 1.0),
     ];
+}
+
++ (void)changeButtonTheme:(NSButton *)button
+{
+    if (![TKWeChatPluginConfig sharedConfig].darkMode) {
+        return;
+    }
+    
+    NSMutableAttributedString *returnValue = [[NSMutableAttributedString alloc] initWithString:button.title attributes:@{NSForegroundColorAttributeName :[NSColor whiteColor]}];
+    button.attributedTitle = returnValue;
 }
 @end

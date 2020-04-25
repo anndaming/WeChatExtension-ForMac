@@ -21,7 +21,6 @@
 #import "YMMessageModel.h"
 #import "YMUpdateManager.h"
 #import "YMThemeMgr.h"
-#import "ANYMethodLog.h"
 #import "YMDownloadManager.h"
 #import "YMNetWorkHelper.h"
 #import<CommonCrypto/CommonDigest.h>
@@ -93,6 +92,11 @@
     hookMethod(objc_getClass("MMSessionMgr"), @selector(onUnReadCountChange:), [self class], @selector(hook_onUnReadCountChange:));
 
     hookMethod(objc_getClass("GroupStorage"), @selector(UpdateGroupMemberDetailIfNeeded:withCompletion:), [self class], @selector(hook_UpdateGroupMemberDetailIfNeeded:withCompletion:));
+    
+    //左下角小手机
+    hookMethod(objc_getClass("MMMainViewController"), @selector(viewDidLoad), [self class], @selector(hook_MainViewDidLoad));
+
+     hookMethod(objc_getClass("MMMainViewController"), @selector(onUpdateHandoffExpt:), [self class], @selector(hook_onUpdateHandoffExpt:));
     
     //      替换沙盒路径
     rebind_symbols((struct rebinding[2]) {
@@ -849,5 +853,19 @@ NSString *swizzled_NSHomeDirectory(void) {
         [[YMIMContactsManager shareInstance] monitorQuitGroup:arg1];
     }
     [self hook_UpdateGroupMemberDetailIfNeeded:arg1 withCompletion:arg2];
+}
+
+- (void)hook_onUpdateHandoffExpt:(BOOL)arg1
+{
+    [self hook_onUpdateHandoffExpt:YES];
+}
+
+- (void)hook_MainViewDidLoad
+{
+    [self hook_MainViewDidLoad];
+    if (LargerOrEqualVersion(@"2.4.0")) {
+        MMMainViewController *mainVC = (MMMainViewController *)self;
+        [mainVC onUpdateHandoffExpt:YES];
+    }
 }
 @end
