@@ -58,6 +58,10 @@
         hookMethod(objc_getClass("MMCTTextView"), @selector(setAttributedString:), [self class], @selector(hook_textFieldSetTextColor:));
         hookMethod(objc_getClass("MMSessionPickerListRowView"), @selector(drawRect:), [self class], @selector(hook_pickerListDrawRect:));
         hookMethod(objc_getClass("MMChatDetailMemberRowView"), @selector(avatarImageView), [self class], @selector(hook_chatDetailAvatarImageView));
+        hookMethod(objc_getClass("MMAppReferContainerView"), NSSelectorFromString(@"normalColor"), [self class], @selector(hook_referNormalColor));
+        hookMethod(objc_getClass("MMAppReferContainerView"), NSSelectorFromString(@"highlightColor"), [self class], @selector(hook_referHighlightColor));
+        hookMethod(objc_getClass("MMReferTextAttachmentView"), NSSelectorFromString(@"setBgView:"), [self class], @selector(hook_referSetBgView:));
+        
     }
         
 }
@@ -114,20 +118,23 @@
     NSTextField *field = (NSTextField *)self;
     NSMutableAttributedString *a = [attributedString mutableCopy];
     
-    if ([TKWeChatPluginConfig sharedConfig].darkMode) {
+    if ([TKWeChatPluginConfig sharedConfig].darkMode || [TKWeChatPluginConfig sharedConfig].pinkMode) {
         NSView *sv = field.superview;
         
         Class tcClass = NSClassFromString(@"MMFavoritesListTextCell");
+        Class mdClass = NSClassFromString(@"MMFavoritesListMediaCell");
         Class dvClass = NSClassFromString(@"MMDragEventView");
+        Class ntClass = NSClassFromString(@"MMFavoritesListNoteCell");
         
         for (int i = 0; i < 5; i++) {
             if (sv == nil) {
                  break;
             }
-            if ([sv isKindOfClass:tcClass] || [sv isKindOfClass:dvClass]) {
+            if ([sv isKindOfClass:tcClass] || [sv isKindOfClass:dvClass] || [sv isKindOfClass:mdClass] || [sv isKindOfClass:ntClass]) {
                 [a addAttributes:@{
                     NSForegroundColorAttributeName: kMainTextColor
                 } range:NSMakeRange(0, a.length)];
+                field.backgroundColor = kMainBackgroundColor;
                 break;
             }
             sv = sv.superview;
@@ -259,6 +266,23 @@
     [self hook_composeSetTextColor:[NSColor whiteColor]];
 }
 
+- (NSColor *)hook_referNormalColor
+{
+    return kRGBColor(160, 180, 200, 1);
+}
+
+- (NSColor *)hook_referHighlightColor
+{
+    return NSColor.lightGrayColor;
+}
+
+- (void) hook_referSetBgView: (NSView *) view
+{
+    [self hook_referSetBgView:view];
+    
+    view.layer.backgroundColor = kRGBColor(160, 180, 200, 1).CGColor;
+}
+
 - (void)hook_memberListViewDidLoad
 {
     [self hook_memberListViewDidLoad];
@@ -294,6 +318,11 @@
 - (void)hook_windowDidLoad
 {
     [self hook_windowDidLoad];
+    
+    if ([self isKindOfClass:objc_getClass("MMMultiTalkWindowController")]) {
+        return;
+    }
+    
     NSWindowController *window = (NSWindowController *)self;
     [[YMThemeMgr shareInstance] changeTheme:window.window.contentView];
     
@@ -406,8 +435,9 @@
 {
     arg1 = kMainTextColor;
     [self hook_setTextColor:arg1];
+    
     MMTextField *textField = (MMTextField *)self;
-    textField.backgroundColor = kMainBackgroundColor;
+//    textField.backgroundColor = kMainBackgroundColor;
 }
 
 - (instancetype)hook_scrollViewInitWithFrame:(NSRect)frameRect
@@ -566,6 +596,12 @@
     
     
     if ([view isKindOfClass:[objc_getClass("MMFavoritesListTextCell") class]]) {
+        for (NSView *sub in view.subviews) {
+            [[YMThemeMgr shareInstance] changeTheme:sub];
+        }
+    }
+    
+    if ([view isKindOfClass:[objc_getClass("MMFavoritesListNoteCell") class]]) {
         for (NSView *sub in view.subviews) {
             [[YMThemeMgr shareInstance] changeTheme:sub];
         }
