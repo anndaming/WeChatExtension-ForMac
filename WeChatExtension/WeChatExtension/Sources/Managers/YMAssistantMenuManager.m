@@ -1,20 +1,20 @@
 //
-//  TKAssistantMenuManager.m
+//  YMAssistantMenuManager.m
 //  WeChatExtension
 //
 //  Created by WeChatExtension on 2018/4/24.
 //  Copyright © 2018年 WeChatExtension. All rights reserved.
 //
 
-#import "TKAssistantMenuManager.h"
-#import "TKRemoteControlManager.h"
+#import "YMAssistantMenuManager.h"
+#import "YMRemoteControlManager.h"
 #import "TKAutoReplyWindowController.h"
 #import "TKRemoteControlWindowController.h"
-#import "TKVersionManager.h"
+#import "YMVersionManager.h"
 #import "NSMenuItem+Action.h"
 #import "TKDownloadWindowController.h"
 #import "TKAboutWindowController.h"
-#import "TKWebServerManager.h"
+#import "YMWebServerManager.h"
 #import "YMMessageManager.h"
 #import "YMAIReplyWindowController.h"
 
@@ -23,7 +23,7 @@ static char kAIAutoReplyWindowControllerKey;         //  AI回复窗口的关联
 static char kRemoteControlWindowControllerKey;     //  远程控制窗口的关联 key
 static char kAboutWindowControllerKey;             //  关于窗口的关联 key
 
-@implementation TKAssistantMenuManager
+@implementation YMAssistantMenuManager
 
 + (instancetype)shareManager
 {
@@ -171,23 +171,29 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
                                                            state:0];
     
     NSString *versionStr = YMLanguage(@"当前版本", @"Version");
-    NSMenuItem *currentVersionItem = [NSMenuItem menuItemWithTitle:[NSString stringWithFormat:@"%@%@",versionStr,[TKVersionManager shareManager].currentVersion]
+    NSMenuItem *currentVersionItem = [NSMenuItem menuItemWithTitle:[NSString stringWithFormat:@"%@%@",versionStr,[YMVersionManager shareManager].currentVersion]
                                                     action:@selector(onCurrentVersion:)
                                                     target:self
                                              keyEquivalent:@""
                                                      state:0];
     
-    NSMenuItem *backGroundItem = [NSMenuItem menuItemWithTitle:YMLanguage(@"主题模式", @"Dark Mode")
+    NSMenuItem *backGroundItem = [NSMenuItem menuItemWithTitle:YMLanguage(@"主题模式", @"Themes")
                                                         action:nil
                                                         target:self
                                                  keyEquivalent:@""
-                                                         state:[TKWeChatPluginConfig sharedConfig].darkMode || [TKWeChatPluginConfig sharedConfig].pinkMode];
+                                                         state:TKWeChatPluginConfig.sharedConfig.usingTheme];
     
     NSMenuItem *darkModeItem = [NSMenuItem menuItemWithTitle:YMLanguage(@"黑夜模式", @"Dark Mode")
                                                       action:@selector(onChangeDarkMode:)
                                                       target:self
                                                keyEquivalent:@"N"
                                                        state:[TKWeChatPluginConfig sharedConfig].darkMode];
+    
+    NSMenuItem *blackModeItem = [NSMenuItem menuItemWithTitle:YMLanguage(@"深邃模式", @"Black Mode")
+                                                       action:@selector(onChangeBlackMode:)
+                                                       target:self
+                                                keyEquivalent:@"N"
+                                                        state:TKWeChatPluginConfig.sharedConfig.blackMode];
     
     NSMenuItem *pinkColorItem = [NSMenuItem menuItemWithTitle:YMLanguage(@"少女模式", @"Pink Mode")
                                                        action:@selector(onChangePinkModel:)
@@ -202,7 +208,7 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
                                                               state:[TKWeChatPluginConfig sharedConfig].groupMultiColorMode];
     
     NSMenu *subBackgroundMenu = [[NSMenu alloc] initWithTitle:@""];
-    [subBackgroundMenu addItems:@[darkModeItem, pinkColorItem, groupMulticolorItem]];
+    [subBackgroundMenu addItems:@[darkModeItem, blackModeItem, pinkColorItem, groupMulticolorItem]];
     backGroundItem.submenu = subBackgroundMenu;
     
     
@@ -442,7 +448,7 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
     
     if ([TKWeChatPluginConfig sharedConfig].isAllowMoreOpenBaby) {
         [TKWeChatPluginConfig sharedConfig].launchFromNew = YES;
-        [TKRemoteControlManager executeShellCommand:@"open -n /Applications/WeChat.app"];
+        [YMRemoteControlManager executeShellCommand:@"open -n /Applications/WeChat.app"];
     } else {
         NSAlert *alert = [NSAlert alertWithMessageText:YMLanguage(@"警告", @"WARNING")
                                          defaultButton:YMLanguage(@"取消", @"cancel")                       alternateButton:YMLanguage(@"确定重启",@"restart")
@@ -516,7 +522,7 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
 - (void)onUpdatePluginControl:(NSMenuItem *)item
 {
     [[TKWeChatPluginConfig sharedConfig] setForbidCheckVersion:NO];
-    [[TKVersionManager shareManager] checkVersionFinish:^(TKVersionStatus status, NSString *message) {
+    [[YMVersionManager shareManager] checkVersionFinish:^(TKVersionStatus status, NSString *message) {
         if (status == TKVersionStatusNew) {
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:YMLocalizedString(@"assistant.update.alret.confirm")];
@@ -540,9 +546,9 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
 {
     item.state = !item.state;
     if (item.state) {
-        [[TKWebServerManager shareManager] startServer];
+        [[YMWebServerManager shareManager] startServer];
     } else {
-        [[TKWebServerManager shareManager] endServer];
+        [[YMWebServerManager shareManager] endServer];
     }
     [[TKWeChatPluginConfig sharedConfig] setAlfredEnable:item.state];
 }
@@ -577,6 +583,37 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
     
 }
 
+- (void)onChangeBlackMode:(NSMenuItem *)item
+{
+    item.state = !item.state;
+    NSString *msg = nil;
+    if (item.state) {
+        msg = YMLanguage(@"打开深邃模式, 重启生效!",@"Turn on BLACK MODE and restart to take effect!");
+    } else {
+        msg = YMLanguage(@"关闭深邃模式, 重启生效!",@"Turn off BLACK MODE and restart to take effect!");
+    }
+    NSAlert *alert = [NSAlert alertWithMessageText:YMLanguage(@"警告", @"WARNING")
+                                     defaultButton:YMLanguage(@"取消", @"cancel")                       alternateButton:YMLanguage(@"确定重启",@"restart")
+                                       otherButton:nil                              informativeTextWithFormat:@"%@", msg];
+    NSUInteger action = [alert runModal];
+    
+    if (action == NSAlertAlternateReturn) {
+        __weak __typeof (self) wself = self;
+        [[TKWeChatPluginConfig sharedConfig] setBlackMode:item.state];
+        item.state ? [[TKWeChatPluginConfig sharedConfig] setDarkMode:NO] : nil;
+        item.state ? [[TKWeChatPluginConfig sharedConfig] setPinkMode:NO] : nil;
+        !item.state ? [[TKWeChatPluginConfig sharedConfig] setGroupMultiColorMode:NO] : nil;
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                [[NSApplication sharedApplication] terminate:wself];
+            });
+        });
+    }  else if (action == NSAlertDefaultReturn) {
+        item.state = !item.state;
+    }
+   
+}
 - (void)onChangeDarkMode:(NSMenuItem *)item
 {
     item.state = !item.state;
@@ -593,6 +630,7 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
     if (action == NSAlertAlternateReturn) {
         __weak __typeof (self) wself = self;
         [[TKWeChatPluginConfig sharedConfig] setDarkMode:item.state];
+        item.state ? [[TKWeChatPluginConfig sharedConfig] setBlackMode:NO]: nil;
         item.state ? [[TKWeChatPluginConfig sharedConfig] setPinkMode:NO] : nil;
         !item.state ? [[TKWeChatPluginConfig sharedConfig] setGroupMultiColorMode:NO] : nil;
         
@@ -624,6 +662,7 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
         __weak __typeof (self) wself = self;
         [[TKWeChatPluginConfig sharedConfig] setPinkMode:item.state];
         item.state ? [[TKWeChatPluginConfig sharedConfig] setDarkMode:NO] : nil;
+        item.state ? [[TKWeChatPluginConfig sharedConfig] setBlackMode:NO]: nil;
         item.state ? [[TKWeChatPluginConfig sharedConfig] setGroupMultiColorMode:NO] : nil;
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -643,10 +682,10 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
     
     NSString *msg = nil;
     if ([[TKWeChatPluginConfig sharedConfig] pinkMode]) {
-        msg = YMLanguage(@"只在黑暗模式有效",@"GroupMultiColor mode only in dark mode has effect!");
+        msg = YMLanguage(@"只在黑暗和深邃模式有效",@"roupMultiColor mode only in dark mode and black mode has effect!");
     } else {
         if (item.state) {
-            msg = YMLanguage(@"打开群成员昵称彩色, 只在黑暗模式有效, 重启生效!",@"Turn on GroupMultiColor mode only in dark mode and restart to take effect!");
+            msg = YMLanguage(@"打开群成员昵称彩色, 只在黑暗/深邃有效, 重启生效!",@"Turn on GroupMultiColor mode only in dark mode and black mode and restart to take effect!");
         } else {
             msg = YMLanguage(@"关闭群成员昵称彩色, 重启生效!",@"Turn off GroupMultiColor mode and restart to take effect!");
         }
@@ -654,7 +693,7 @@ static char kAboutWindowControllerKey;             //  关于窗口的关联 key
     
     NSAlert *alert = [NSAlert alertWithMessageText:YMLanguage(@"警告", @"WARNING")
                                      defaultButton:YMLanguage(@"取消", @"cancel")
-                                   alternateButton: [[TKWeChatPluginConfig sharedConfig] darkMode] ? YMLanguage(@"确定重启",@"restart") : nil
+                                   alternateButton: TKWeChatPluginConfig.sharedConfig.usingDarkTheme ? YMLanguage(@"确定重启",@"restart") : nil
                                        otherButton:nil                              informativeTextWithFormat:@"%@", msg];
     NSUInteger action = [alert runModal];
     if (action == NSAlertAlternateReturn) {

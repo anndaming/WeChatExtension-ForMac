@@ -1,14 +1,14 @@
 //
-//  YMUtility.m
+//  YMDeviceHelper.m
 //  WeChatExtension
 //
 //  Created by WeChatExtension on 2019/1/12.
 //  Copyright © 2019 WeChatExtension. All rights reserved.
 //
 
-#import "YMUtility.h"
+#import "YMDeviceHelper.h"
 
-@implementation YMUtility
+@implementation YMDeviceHelper
 
 + (BOOL)isLargerOrEqualVersion:(NSString *)version
 {
@@ -28,5 +28,17 @@
     } else {
         return YES;
     }
+}
+
++ (NSString *)deviceFingerprint
+{
+    CFUUIDRef uuidRef = CFUUIDCreate(NULL);
+    CFStringRef uuidStringRef = CFUUIDCreateString(NULL, uuidRef);
+    CFRelease(uuidRef);
+
+    NSString *uuidValue = (__bridge_transfer NSString *)uuidStringRef;
+    uuidValue = [uuidValue lowercaseString];
+    uuidValue = [uuidValue stringByReplacingOccurrencesOfString:@"-" withString:@""];
+    return uuidValue;
 }
 @end
