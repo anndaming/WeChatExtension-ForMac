@@ -1,14 +1,15 @@
 //
-//  TKWeChatPluginConfig.m
+//  YMWeChatPluginConfig.m
 //  WeChatExtension
 //
-//  Created by WeChatExtension on 2017/4/19.
-//  Copyright © 2017年 WeChatExtension. All rights reserved.
+//  Created by WeChatExtension on 2019/4/19.
+//  Copyright © 2019年 WeChatExtension. All rights reserved.
 //
 
-#import "TKWeChatPluginConfig.h"
+#import "YMWeChatPluginConfig.h"
 #import "TKRemoteControlModel.h"
 #import "YMAutoReplyModel.h"
+#import "VAutoForwardingModel.h"
 #import "TKIgnoreSessonModel.h"
 #import "WeChatPlugin.h"
 #import "YMIMContactsManager.h"
@@ -16,7 +17,7 @@
 static NSString * const kTKWeChatResourcesPath = @"/Applications/WeChat.app/Contents/MacOS/WeChatExtension.framework/Resources/";
 static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubusercontent.com/MustangYM/WeChatExtension-ForMac/master/WeChatExtension/WeChatExtension/Base.lproj/Info.plist";
 
-@interface TKWeChatPluginConfig ()
+@interface YMWeChatPluginConfig ()
 
 @property (nonatomic, copy) NSString *remoteControlPlistFilePath;
 @property (nonatomic, copy) NSString *autoReplyPlistFilePath;
@@ -27,7 +28,7 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 
 @end
 
-@implementation TKWeChatPluginConfig
+@implementation YMWeChatPluginConfig
 
 @dynamic preventRevokeEnable;
 @dynamic preventSelfRevokeEnable;
@@ -35,6 +36,8 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 @dynamic preventAsyncRevokeSignal;
 @dynamic preventAsyncRevokeChatRoom;
 @dynamic autoReplyEnable;
+@dynamic autoForwardingEnable;
+@dynamic autoForwardingAllFriend;
 @dynamic autoAuthEnable;
 @dynamic launchFromNew;
 @dynamic quitMonitorEnable;
@@ -47,18 +50,18 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 @dynamic systemBrowserEnable;
 @dynamic currentUserName;
 @dynamic isAllowMoreOpenBaby;
+@dynamic fuzzyMode;
 @dynamic darkMode;
 @dynamic blackMode;
 @dynamic pinkMode;
-@dynamic groupMultiColorMode;
 @dynamic isThemeLoaded;
 
 + (instancetype)sharedConfig
 {
-    static TKWeChatPluginConfig *config = nil;
+    static YMWeChatPluginConfig *config = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        config = [TKWeChatPluginConfig standardUserDefaults];
+        config = [YMWeChatPluginConfig standardUserDefaults];
     });
     return config;
 }
@@ -101,6 +104,23 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
         [needSaveModels addObject:model.dictionary];
     }];
     [needSaveModels writeToFile:self.autoReplyPlistFilePath atomically:YES];
+}
+
+#pragma mark - 自动转发
+- (NSArray *)VAutoForwardingModel
+{
+    NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"AutoForwarding.data"];
+    return [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+}
+
+- (void)saveAutoForwardingModel:(VAutoForwardingModel *)model
+{
+    if (!model) {
+        return;
+    }
+    NSString *temp = NSTemporaryDirectory();
+    NSString *filePath = [temp stringByAppendingPathComponent:@"AutoForwarding.data"];
+    [NSKeyedArchiver archiveRootObject:model toFile:filePath];
 }
 
 #pragma mark - 远程控制
@@ -334,62 +354,62 @@ static NSString * const kTKWeChatRemotePlistPath = @"https://raw.githubuserconte
 
 - (NSString *)languageSetting:(NSString *)chinese english:(NSString *)english
 {
-    if ([TKWeChatPluginConfig sharedConfig].languageType == PluginLanguageTypeZH) {
+    if ([YMWeChatPluginConfig sharedConfig].languageType == PluginLanguageTypeZH) {
         return chinese;
     }
     return english;
 }
 
 - (BOOL)usingTheme {
-    return self.darkMode || self.blackMode || self.pinkMode;
+    return self.fuzzyMode || self.darkMode || self.blackMode || self.pinkMode;
 }
 
 - (BOOL)usingDarkTheme {
-    return self.darkMode || self.blackMode;
+    return self.fuzzyMode || self.darkMode || self.blackMode;
 }
 
 - (NSColor *)mainTextColor {
     if (![self usingTheme]) {
         return kDefaultTextColor;
     }
-    return self.darkMode ? kDarkModeTextColor : (self.blackMode ? kBlackModeTextColor : kPinkModeTextColor);
+    return self.fuzzyMode ? [NSColor whiteColor] : (self.darkMode ? kDarkModeTextColor : (self.blackMode ? kBlackModeTextColor : kPinkModeTextColor));
 }
 
 - (NSColor *)mainBackgroundColor {
     if (![self usingTheme]) {
         return NSColor.clearColor;
     }
-    return self.darkMode ? kDarkBacgroundColor : (self.blackMode ? kBlackBackgroundColor : kPinkBacgroundColor);
+    return self.fuzzyMode ? kFuzzyBacgroundColor : (self.darkMode ? kDarkBacgroundColor : (self.blackMode ? kBlackBackgroundColor : kPinkBacgroundColor));
 }
 
 - (NSColor *)mainIgnoredTextColor {
     if (![self usingTheme]) {
         return kDefaultIgnoredTextColor;
     }
-    return self.darkMode ? kDarkModeIgnoredTextColor : (self.blackMode ? kBlackModeIgnoredTextColor : kPinkModeIgnoredTextColor);
+    return self.fuzzyMode ? kDarkModeIgnoredTextColor : (self.darkMode ? kDarkModeIgnoredTextColor : (self.blackMode ? kBlackModeIgnoredTextColor : kPinkModeIgnoredTextColor));
 }
 
 - (NSColor *)mainIgnoredBackgroundColor {
     if (![self usingTheme]) {
         return kDefaultIgnoredBackgroundColor;
     }
-    return self.darkMode ? kDarkModeIgnoredBackgroundColor : (self.blackMode ? kBlackModeIgnoredBackgroundColor : kPinkModeIgnoredBackgroundColor);
+    return self.fuzzyMode ? kDarkModeIgnoredBackgroundColor : (self.darkMode ? kDarkModeIgnoredBackgroundColor : (self.blackMode ? kBlackModeIgnoredBackgroundColor : kPinkModeIgnoredBackgroundColor));
 }
 
 - (NSColor *)mainSeperatorColor {
-    return self.darkMode ? kRGBColor(147, 148, 248, 0.2) : (self.blackMode ? kRGBColor(128,128,128, 0.5) : kRGBColor(147, 148, 248, 0.2));
+    return self.fuzzyMode ? kRGBColor(147, 148, 248, 0.2) : (self.darkMode ? kRGBColor(147, 148, 248, 0.2) : (self.blackMode ? kRGBColor(128,128,128, 0.5) : kRGBColor(147, 148, 248, 0.2)));
 }
 
 - (NSColor *)mainScrollerColor {
-    return self.darkMode ? kRGBColor(33, 48, 64, 1.0) : (self.blackMode ? kRGBColor(128,128,128, 0.5) : NSColor.clearColor);
+    return self.fuzzyMode ? kRGBColor(33, 48, 64, 1.0) : (self.darkMode ? kRGBColor(33, 48, 64, 1.0) : (self.blackMode ? kRGBColor(128,128,128, 0.5) : NSColor.clearColor));
 }
 
 - (NSColor *)mainDividerColor {
-    return self.darkMode ? kRGBColor(71, 69, 112, 0.5) : (self.blackMode ? kRGBColor(128,128,128, 0.7) : kRGBColor(71, 69, 112, 0.5));
+    return self.fuzzyMode ? kRGBColor(71, 69, 112, 0.5) : (self.darkMode ? kRGBColor(71, 69, 112, 0.5) : (self.blackMode ? kRGBColor(128,128,128, 0.7) : kRGBColor(71, 69, 112, 0.5)));
 }
 
 - (NSColor *)mainChatCellBackgroundColor {
-    return self.darkMode ? kRGBColor(33, 48, 64, 1.0) : (self.blackMode ? kRGBColor(38, 38, 38, 1.0) : nil);
+    return self.fuzzyMode ? kRGBColor(33, 48, 64, 0.3) : (self.darkMode ? kRGBColor(33, 48, 64, 1.0) : (self.blackMode ? kRGBColor(38, 38, 38, 1.0) : nil));
 }
 
 @end
