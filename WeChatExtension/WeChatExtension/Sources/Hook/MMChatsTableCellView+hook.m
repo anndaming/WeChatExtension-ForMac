@@ -99,10 +99,8 @@
                 weakCellView.nickName.attributedStringValue = returnValue;
                 
                 // MARK: - Add pined image in dark mode
-                NSBundle *bundle = [NSBundle bundleWithIdentifier:@"MustangYM.WeChatExtension"];
-                NSString *imgPath= [bundle pathForImageResource:@"pin.png"];
-                
-                NSImage *pined = [[NSImage alloc] initWithContentsOfFile:imgPath];
+        
+                NSImage *pined = kImageWithName(@"pin.png");
                 NSImageView *pinedView = [[NSImageView alloc] initWithFrame:NSMakeRect(0, 0, 20, 20)];
                 [pinedView setImage:pined];
                 
@@ -262,7 +260,12 @@
     NSMutableArray *emptyArrSession = [NSMutableArray array];
     
     [arrSession enumerateObjectsUsingBlock:^(MMSessionInfo *sessionInfo, NSUInteger idx, BOOL * _Nonnull stop) {
-        BOOL hasEmplyMsgSession = ![msgService hasMsgInChat:sessionInfo.m_nsUserName];
+        BOOL hasEmplyMsgSession = NO;
+        if (LargerOrEqualVersion(@"2.4.2")) {
+            hasEmplyMsgSession = ![msgService HasMsgInChat:sessionInfo.m_nsUserName];
+        } else {
+            hasEmplyMsgSession = ![msgService hasMsgInChat:sessionInfo.m_nsUserName];
+        }
         WCContactData *contact = sessionInfo.m_packedInfo.m_contact;
         if (![sessionInfo.m_nsUserName isEqualToString:@"brandsessionholder"] && ![contact isSelf] && hasEmplyMsgSession) {
             [emptyArrSession addObject:sessionInfo];
